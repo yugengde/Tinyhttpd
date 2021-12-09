@@ -300,18 +300,22 @@ void execute_cgi(int client, const char *path,
 
 /**********************************************************************/
 /* Get a line from a socket, whether the line ends in a newline,
- * carriage return, or a CRLF combination.  Terminates the string read
- * with a null character.  If no newline indicator is found before the
- * end of the buffer, the string is terminated with a null.  If any of
- * the above three line terminators is read, the last character of the
- * string will be a linefeed and the string will be terminated with a
- * null character.
+ *      carriage return(回车), or 
+ *      a CRLF(回车换行: carriage-return line-feed) combination.  
+ *  Terminates the string read with a null character.  
+ *
+ *  If no newline indicator(指示信号) is found before the end of the buffer, 
+ *      the string is terminated with a null.  If any of the above three line terminators is read, 
+ * the last character of the string will be a linefeed and 
+ *  the string will be terminated with a null character.
+ *
+ *
  * Parameters: the socket descriptor
  *             the buffer to save the data in
  *             the size of the buffer
  * Returns: the number of bytes stored (excluding null) */
 /**********************************************************************/
-int get_line(int sock, char *buf, int size)
+int get_line(int sock, char *buf, int size)  // ** [**]
 {
     int i = 0;
     char c = '\0';
@@ -323,11 +327,15 @@ int get_line(int sock, char *buf, int size)
         /* DEBUG printf("%02X\n", c); */
         if (n > 0)
         {
-            if (c == '\r')
+            if (c == '\r')  // cr
             {
+                /*
+                 * flag=0; 读取tcp缓存的数据到buf中，并从tcp缓冲区中移除已读取的数据 
+                 * flag=MSG_PEEK; 读取tcp缓存的数据到buf中，不删除缓冲区的数据
+                 */
                 n = recv(sock, &c, 1, MSG_PEEK);
                 /* DEBUG printf("%02X\n", c); */
-                if ((n > 0) && (c == '\n'))
+                if ((n > 0) && (c == '\n'))  // lf
                     recv(sock, &c, 1, 0);
                 else
                     c = '\n';
