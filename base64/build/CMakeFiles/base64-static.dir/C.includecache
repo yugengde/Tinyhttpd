@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/base64/base64.h
+
+/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/src/base64.c
+base64/base64.h
+-
+
