@@ -1,5 +1,0 @@
-/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/build/CMakeFiles/rebuild_cache.dir
-/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/build/CMakeFiles/edit_cache.dir
-/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/build/CMakeFiles/base64-static.dir
-/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/build/tests/CMakeFiles/rebuild_cache.dir
-/usr/local/src/git-source/c2cpp/study/Tinyhttpd/base64/build/tests/CMakeFiles/edit_cache.dir

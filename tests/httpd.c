@@ -66,12 +66,10 @@ void accept_request_v2(void *arg){
     int client = (intptr_t)arg;
     int fd;
 
+    int write_total = 0;
     char filename[512];
-    // const char* filename = "vosvoice.20211206_211644.tar.xz";
     snprintf(filename, sizeof(filename),
             "downloads/Makefile.%s.txt", currTime("%Y%m%d-%H%M%S"));
-
-    // fd = open(filename, O_CREAT | O_WRONLY);
 
     fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC,
             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
@@ -80,11 +78,7 @@ void accept_request_v2(void *arg){
         return ;
     }
 
-    // char recv_buf[1024] = {0};
-
-    // while((n=recv(client, buf, batch_size, 0)) > 0){
     while(1){
-        // printf("recv header..\n");
         char header[12];
 
         n=recv(client, header, 12, 0);
@@ -102,22 +96,15 @@ void accept_request_v2(void *arg){
         }
 
 
-        // printf("recv body..\n");
         char buf[batch_size];
         memset(buf, 0, sizeof(buf));
 
         int len = recv(client, buf, psd->length, 0);
-        // printf("data len = %d", len);
-
-        // printf("3. body(json data) size: %u\n", psd->length);
-        // printf("msg: %s\n", buf);
 
 
         cJSON *data = cJSON_Parse(buf);
-        // printf("%s\n", buf);
 
         char *name = cJSON_GetStringValue(cJSON_GetObjectItem(data, "name"));
-        // printf("name = %s\n", name);
         if(name==NULL){
             printf("%s\n", buf);
             printf("name is null\n");
@@ -134,60 +121,38 @@ void accept_request_v2(void *arg){
         printf("\n\n=======================\n");
         printf("ecpch = %lu\n", epoch);
 
-        // printf("raw bytes: %lu\n", strlen(raw));
-        // char *vdata = (char*)calloc(1024,sizeof(char));
-        unsigned long len2 = strlen(raw) ;
-        // printf("size of raw : %lu, strlen: %lu\n", len1, len2);
+
+        unsigned char out2[128] = {0};
+        EVP_DecodeBlock(out2, raw, strlen(raw));
 
         /*
-        base64_decode(raw, strlen(raw), vdata);
-        printf("vdata = %s\n", vdata);
-        */
+           */
 
-
-
-        //
-        /*
-        unsigned char out2[1024];
-        int out2l = 0;
+           /*
+        int out2L = 0;
         EVP_ENCODE_CTX *dctx = NULL;
         dctx = EVP_ENCODE_CTX_new();
         EVP_DecodeInit(dctx);
 
-        EVP_DecodeUpdate(dctx, out2, &out2l, raw, len2+1);
+        EVP_DecodeUpdate(dctx, out2, &out2L, raw, strlen(raw));
 
-        EVP_DecodeFinal(dctx, out2+out2l, &out2l);
-        */
-        //
-        
+        EVP_DecodeFinal(dctx, out2+out2L, &out2L);
 
-        //
-        unsigned char out2[1023];
-        EVP_DecodeBlock((unsigned char*)out2, (const unsigned char*)raw, strlen(raw));
-        
-        printf("raw: %s\n", out2);
         printf("base64: %s\n", raw);
-        
-        //
-
-
-        // printf("in = %s\n", out2);
-        // printf("out2Len: %d\n", out2l);
-
-        //
-
-
-
-        /*
-        write(fd, raw, batch_size);
-        // printf("写入字节数: %d\n",x);
-        // close(fd);
+        // print_payload(out2, strlen(out2));
+        // print_payload(out2, strlen(out2) );
+        print_payload(out2, out2L );
+        printf("%d %d\n", sizeof(out2), strlen(out2));
         */
+        // print_payload(out2, sizeof(out2));
+
         int x = write(fd, out2, sizeof(out2));
+        write_total += x;
+
         char ok = 'o';
         write(client, &ok, 1);
     }
-    printf("finish..\n");
+    printf("写入字节数: %d\n", write_total);
 
     close(client);
     close(fd);
@@ -645,12 +610,12 @@ void unimplemented(int client)
 int main(void)
 {
     /*
-    cJSON* data = NULL;
-    data = cJSON_CreateObject();
-    cJSON_AddStringToObject(data, "name", "test");
-    char *out = cJSON_Print(data);
-    printf("%s\n", out);
-    */
+       cJSON* data = NULL;
+       data = cJSON_CreateObject();
+       cJSON_AddStringToObject(data, "name", "test");
+       char *out = cJSON_Print(data);
+       printf("%s\n", out);
+       */
 
     int server_sock = -1;
     u_short port = 4000;
@@ -674,7 +639,6 @@ int main(void)
             perror("pthread_create");
 
         pthread_join(newthread, NULL);
-        break;
     }
 
     close(server_sock);
